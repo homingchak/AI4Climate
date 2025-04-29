@@ -87,7 +87,6 @@ def main():
     data = load_and_clean_data('atlantic.csv')
     data['Year'] = data['Datetime'].dt.year
     
-    # Debug output for missing values
     print(f"Records with missing Maximum Wind: {data['Maximum Wind'].isna().sum()}")
     wind_radii_cols = ['Low Wind NE', 'Low Wind SE', 'Low Wind SW', 'Low Wind NW',
                        'Moderate Wind NE', 'Moderate Wind SE', 'Moderate Wind SW', 'Moderate Wind NW',
