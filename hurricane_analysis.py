@@ -99,6 +99,8 @@ def main():
         try:
             data = load_and_clean_data(file_path)
             data['Year'] = data['Datetime'].dt.year
+
+            print(f"{dataset_name.capitalize()} Dataset: Total Records: {len(data)}")
             
             # Check for missing values
             print(f"{dataset_name.capitalize()} Dataset: Records with missing Maximum Wind: {data['Maximum Wind'].isna().sum()}")
