@@ -5,10 +5,15 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from utils import load_and_clean_data
 
-def plot_hurricane_tracks_on_map(df, min_wind=100):
+def plot_hurricane_tracks_on_map(df, min_wind=100, dataset_name="atlantic"):
     plt.figure(figsize=(12, 8))
     ax = plt.axes(projection=ccrs.PlateCarree())
-    ax.set_extent([-100, -10, 0, 60], crs=ccrs.PlateCarree())
+    
+    if dataset_name.lower() == "atlantic":
+        ax.set_extent([-100, -10, 0, 60], crs=ccrs.PlateCarree())
+    elif dataset_name.lower() == "pacific":
+        ax.set_extent([-180, -100, 0, 60], crs=ccrs.PlateCarree())
+    
     ax.add_feature(cfeature.LAND, facecolor='lightgray')
     ax.add_feature(cfeature.OCEAN, facecolor='lightblue')
     ax.add_feature(cfeature.COASTLINE)
@@ -16,14 +21,14 @@ def plot_hurricane_tracks_on_map(df, min_wind=100):
     ax.gridlines(draw_labels=True, linestyle='--', color='gray', alpha=0.5)
     
     strong_hurricanes = df[(df['Status'] == 'HU') & (df['Maximum Wind'] >= min_wind)]
-    print(f"Number of records with Status == 'HU' and Maximum Wind >= {min_wind}: {len(strong_hurricanes)}")
-    print(f"Number of storms with Status == 'HU' and Maximum Wind >= {min_wind}: {len(strong_hurricanes['ID'].unique())}")
+    print(f"{dataset_name.capitalize()} Dataset: Number of records with Status == 'HU' and Maximum Wind >= {min_wind}: {len(strong_hurricanes)}")
+    print(f"{dataset_name.capitalize()} Dataset: Number of storms with Status == 'HU' and Maximum Wind >= {min_wind}: {len(strong_hurricanes['ID'].unique())}")
     
     num_storms = len(strong_hurricanes['ID'].unique())
     if num_storms == 0:
-        print(f"Warning: No storms meet the criteria for plotting tracks (Status == 'HU' and Maximum Wind >= {min_wind}).")
-        plt.title(f"Tracks of Hurricanes with Maximum Wind ≥ {min_wind} knots on Map (No Data)")
-        plt.savefig('hurricane_tracks_map.png')
+        print(f"Warning: No storms meet the criteria for plotting tracks (Status == 'HU' and Maximum Wind >= {min_wind}) in {dataset_name.capitalize()} dataset.")
+        plt.title(f"Tracks of {dataset_name.capitalize()} Hurricanes with Maximum Wind ≥ {min_wind} knots on Map (No Data)")
+        plt.savefig(f'{dataset_name}_hurricane_tracks_map.png')
         plt.close()
         return
     
@@ -35,17 +40,17 @@ def plot_hurricane_tracks_on_map(df, min_wind=100):
         storm_data = storm_data.sort_values('Datetime')
         
         if len(storm_data) < 2:
-            print(f"Storm {storm_id}: Not enough points to plot (need at least 2 points).")
+            print(f"{dataset_name.capitalize()} Dataset: Storm {storm_id}: Not enough points to plot (need at least 2 points).")
             continue
         
         ax.plot(storm_data['Longitude'], storm_data['Latitude'],
                 color=color_cycle[idx], linewidth=2, alpha=0.7, transform=ccrs.PlateCarree())
     
-    plt.title(f'Tracks of Hurricanes with Maximum Wind ≥ {min_wind} knots on Map')
-    plt.savefig('hurricane_tracks_map.png')
+    plt.title(f'Tracks of {dataset_name.capitalize()} Hurricanes with Maximum Wind ≥ {min_wind} knots on Map')
+    plt.savefig(f'{dataset_name}_hurricane_tracks_map.png')
     plt.close()
 
-def plot_wind_speed_distribution(df):
+def plot_wind_speed_distribution(df, dataset_name="atlantic"):
     plt.figure(figsize=(10, 6))
     hurricanes = df[df['Status'] == 'HU']
     wind_speeds = hurricanes['Maximum Wind'].dropna()
@@ -55,14 +60,14 @@ def plot_wind_speed_distribution(df):
     bins = np.arange(min_speed, max_speed + 5, 5)
     
     plt.hist(wind_speeds, bins=bins, edgecolor='black', color='skyblue', align='mid')
-    plt.title('Distribution of Maximum Wind Speeds for Hurricanes')
+    plt.title(f'Distribution of Maximum Wind Speeds for {dataset_name.capitalize()} Hurricanes')
     plt.xlabel('Maximum Wind Speed (knots)')
     plt.ylabel('Frequency')
     plt.grid(True, alpha=0.3)
-    plt.savefig('wind_speed_distribution.png')
+    plt.savefig(f'{dataset_name}_wind_speed_distribution.png')
     plt.close()
 
-def plot_hurricane_frequency(df):
+def plot_hurricane_frequency(df, dataset_name="atlantic"):
     plt.figure(figsize=(12, 6))
     hurricanes = df[df['Status'] == 'HU'][['ID', 'Year']].drop_duplicates()
     yearly_counts = hurricanes.groupby('Year').size()
@@ -75,37 +80,54 @@ def plot_hurricane_frequency(df):
     trendline = np.poly1d(coefficients)
     plt.plot(years, trendline(years), color='blue', linestyle='--', label=f'Trendline (slope={coefficients[0]:.4f})')
     
-    plt.title('Unique Hurricanes per Year with Trendline')
+    plt.title(f'Unique {dataset_name.capitalize()} Hurricanes per Year with Trendline')
     plt.xlabel('Year')
     plt.ylabel('Number of Hurricanes')
     plt.grid(True, alpha=0.3)
     plt.legend()
-    plt.savefig('hurricane_frequency.png')
+    plt.savefig(f'{dataset_name}_hurricane_frequency.png')
     plt.close()
 
 def main():
-    data = load_and_clean_data('atlantic.csv')
-    data['Year'] = data['Datetime'].dt.year
+    datasets = {
+        'atlantic': 'atlantic.csv',
+        'pacific': 'pacific.csv'
+    }
     
-    print(f"Records with missing Maximum Wind: {data['Maximum Wind'].isna().sum()}")
-    wind_radii_cols = ['Low Wind NE', 'Low Wind SE', 'Low Wind SW', 'Low Wind NW',
-                       'Moderate Wind NE', 'Moderate Wind SE', 'Moderate Wind SW', 'Moderate Wind NW',
-                       'High Wind NE', 'High Wind SE', 'High Wind SW', 'High Wind NW']
-    for col in wind_radii_cols:
-        print(f"Records with missing {col}: {data[col].isna().sum()}")
-    
-    plot_hurricane_tracks_on_map(data, min_wind=100)
-    plot_wind_speed_distribution(data)
-    plot_hurricane_frequency(data)
-    
-    hurricanes = data[data['Status'] == 'HU']
-    avg_wind = hurricanes['Maximum Wind'].mean()
-    print(f"Total Hurricanes: {len(hurricanes['ID'].unique())}")
-    print(f"Average Maximum Wind Speed: {avg_wind:.2f} knots")
-    print(f"Years Covered: {data['Year'].min()} to {data['Year'].max()}")
-    print("Map plot saved as 'hurricane_tracks_map.png'")
-    print("Wind speed distribution saved as 'wind_speed_distribution.png'")
-    print("Hurricane frequency plot saved as 'hurricane_frequency.png'")
+    for dataset_name, file_path in datasets.items():
+        print(f"\nProcessing {dataset_name.capitalize()} Dataset...")
+        try:
+            data = load_and_clean_data(file_path)
+            data['Year'] = data['Datetime'].dt.year
+            
+            # Check for missing values
+            print(f"{dataset_name.capitalize()} Dataset: Records with missing Maximum Wind: {data['Maximum Wind'].isna().sum()}")
+            print(f"{dataset_name.capitalize()} Dataset: Records with missing Minimum Pressure: {data['Minimum Pressure'].isna().sum()}")
+            wind_radii_cols = ['Low Wind NE', 'Low Wind SE', 'Low Wind SW', 'Low Wind NW',
+                               'Moderate Wind NE', 'Moderate Wind SE', 'Moderate Wind SW', 'Moderate Wind NW',
+                               'High Wind NE', 'High Wind SE', 'High Wind SW', 'High Wind NW']
+            for col in wind_radii_cols:
+                print(f"{dataset_name.capitalize()} Dataset: Records with missing {col}: {data[col].isna().sum()}")
+            
+            # Generate plots
+            plot_hurricane_tracks_on_map(data, min_wind=100, dataset_name=dataset_name)
+            plot_wind_speed_distribution(data, dataset_name=dataset_name)
+            plot_hurricane_frequency(data, dataset_name=dataset_name)
+            
+            # Summary statistics
+            hurricanes = data[data['Status'] == 'HU']
+            avg_wind = hurricanes['Maximum Wind'].mean()
+            print(f"{dataset_name.capitalize()} Dataset: Total Hurricanes: {len(hurricanes['ID'].unique())}")
+            print(f"{dataset_name.capitalize()} Dataset: Average Maximum Wind Speed: {avg_wind:.2f} knots")
+            print(f"{dataset_name.capitalize()} Dataset: Years Covered: {data['Year'].min()} to {data['Year'].max()}")
+            print(f"{dataset_name.capitalize()} Dataset: Map plot saved as '{dataset_name}_hurricane_tracks_map.png'")
+            print(f"{dataset_name.capitalize()} Dataset: Wind speed distribution saved as '{dataset_name}_wind_speed_distribution.png'")
+            print(f"{dataset_name.capitalize()} Dataset: Hurricane frequency plot saved as '{dataset_name}_hurricane_frequency.png'")
+        
+        except FileNotFoundError:
+            print(f"Error: {file_path} not found. Skipping {dataset_name.capitalize()} dataset.")
+        except Exception as e:
+            print(f"Error processing {dataset_name.capitalize()} dataset: {str(e)}")
 
 if __name__ == "__main__":
     main()
