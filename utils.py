@@ -31,6 +31,22 @@ def calculate_distance(lat1, lon1, lat2, lon2):
     except:
         return np.nan
 
+def calculate_wind_speed_change(df):
+    df = df.sort_values(['ID', 'Datetime'])
+    
+    # Calculate time difference (in hours) between consecutive records for each storm
+    df['Time_Diff_Hours'] = df.groupby('ID')['Datetime'].diff().dt.total_seconds() / 3600
+    
+    # Calculate wind speed change over 24 hours
+    df['Wind_Speed_Diff'] = df.groupby('ID')['Maximum Wind'].diff()
+    df['Wind_Speed_Change_Rate'] = df['Wind_Speed_Diff'] / df['Time_Diff_Hours']
+    df['Wind_Speed_Change_24h'] = df['Wind_Speed_Change_Rate'] * 24
+    
+    # Label as Rapid Intensification (RI) if wind speed increases by >= 30 knots in 24 hours
+    df['Rapid_Intensification'] = (df['Wind_Speed_Change_24h'] >= 30).astype(int)
+    
+    return df
+
 def load_and_clean_data(file_path, filter_hurricanes=False):
     df = pd.read_csv(file_path, skipinitialspace=True)
     df.columns = [col.strip() for col in df.columns]
