@@ -15,6 +15,9 @@ hurricane_analysis.py goes through both Atlanta and Pacific datasets and generat
 
 
 RI_prediction_random_forest_v1.py trains the RF V1 model with only 4 features and evaluates it on test set, then outputs a brief summary and a classification report including F1 score and other evaluation criteria, with a plot of feature importance.
+
 RI_prediction_random_forest_v2.py trains the RF V2 model with 4 extra features and evaluates it on test set, then outputs a brief summary and a classification report including F1 score and other evaluation criteria, with a plot of feature importance.
+
 RI_prediction_random_forest_v3.py trains the RF V3 model with all features and evaluates it on test set, then outputs a brief summary and a classification report including F1 score and other evaluation criteria, with a plot of feature importance.
+
 RI_prediction_xgboost.py trains the XGBoost model with all features and evaluates it on test set, then outputs a brief summary and a classification report including F1 score and other evaluation criteria, with a plot of feature importance.
