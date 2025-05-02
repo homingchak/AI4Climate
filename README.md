@@ -1,9 +1,13 @@
 This project uses the Hurricanes and Typhoons dataset from NOAA, which can be accessed at https://www.kaggle.com/datasets/noaa/hurricane-database/data
-The contents inside the .zip file should be extracted to the same directory as the programs. A copy of both Atlantic and Pacific data (atlantic.csv and pacific.csv) is already put in the main branch.
+
+The contents inside the .zip file should be extracted to the same directory as the programs. 
+
+A copy of both Atlantic and Pacific data (atlantic.csv and pacific.csv) is already put in the main branch.
 
 This project aims to explore the use of random forest classifiers and XGBoost algorithm to predict rapid intensification of tropical cyclones.
 
-utils.py contains functions used in the other programs. It does not need to be run.
+utils.py contains functions used in the other programs. 
+It does not need to be run.
 hurricane_analysis.py goes through both Atlanta and Pacific datasets and generates brief summaries, as well as producing respective plots of hurricanes on a map, histograms of wind speed distribution, and graphs of hurricane frequency over time.
 
 
