@@ -86,6 +86,72 @@ def plot_typhoon_frequency(df, dataset_name="hko"):
     plt.savefig(f'{dataset_name}_typhoon_frequency.png')
     plt.close()
 
+def plot_strong_typhoon_frequency(df, min_wind=100, dataset_name="hko"):
+    plt.figure(figsize=(12, 6))
+    typhoons = df[df['Intensity'].isin(['T', 'ST', 'SuperT'])]
+    
+    max_wind_per_typhoon = typhoons.groupby(['Year', 'Typhoon_ID'])['Estimated maximum surface winds (knot)'].max().reset_index()
+    strong_typhoons = max_wind_per_typhoon[max_wind_per_typhoon['Estimated maximum surface winds (knot)'] >= min_wind]
+    yearly_counts = strong_typhoons.groupby('Year')['Typhoon_ID'].nunique()
+    
+    years = yearly_counts.index
+    counts = yearly_counts.values
+    
+    plt.plot(years, counts, marker='o', color='coral', label=f'Strong Typhoon Frequency (≥ {min_wind} knots)', linestyle='-')
+    coefficients = np.polyfit(years, counts, 1)
+    trendline = np.poly1d(coefficients)
+    plt.plot(years, trendline(years), color='blue', linestyle='--', label=f'Trendline (slope={coefficients[0]:.4f})')
+    
+    plt.title(f'Unique {dataset_name.upper()} Typhoons with Estimated Maximum Surface Winds ≥ {min_wind} knots per Year')
+    plt.xlabel('Year')
+    plt.ylabel('Number of Strong Typhoons')
+    plt.grid(True, alpha=0.3)
+    plt.legend()
+    plt.savefig(f'{dataset_name}_strong_typhoon_frequency.png')
+    plt.close()
+
+def plot_typhoon_frequency_monthly(df, dataset_name="hko"):
+    plt.figure(figsize=(12, 6))
+    typhoons = df[df['Intensity'].isin(['T', 'ST', 'SuperT'])].copy()
+    
+    typhoons['Month'] = typhoons['Datetime'].dt.month
+    monthly_counts = typhoons.groupby('Month')['Typhoon_ID'].nunique()
+    monthly_counts = monthly_counts.reindex(range(1, 13), fill_value=0)
+    
+    months = monthly_counts.index
+    counts = monthly_counts.values
+    
+    plt.bar(months, counts, color='coral', edgecolor='black', alpha=0.7)
+    plt.title(f'Unique {dataset_name.upper()} Typhoons per Month')
+    plt.xlabel('Month')
+    plt.ylabel('Number of Typhoons')
+    plt.xticks(months, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
+    plt.grid(True, alpha=0.3)
+    plt.savefig(f'{dataset_name}_typhoon_frequency_monthly.png')
+    plt.close()
+
+def plot_average_of_peak_maximum_wind_of_typhoons_per_year(df, dataset_name="hko"):
+    plt.figure(figsize=(12, 6))
+    typhoons = df[df['Intensity'].isin(['T', 'ST', 'SuperT'])]
+    max_wind_per_typhoon = typhoons.groupby(['Year', 'Typhoon_ID'])['Estimated maximum surface winds (knot)'].max().reset_index()
+    avg_max_wind_per_year = max_wind_per_typhoon.groupby('Year')['Estimated maximum surface winds (knot)'].mean()
+    
+    years = avg_max_wind_per_year.index
+    avg_winds = avg_max_wind_per_year.values
+    
+    plt.plot(years, avg_winds, marker='o', color='coral', label='Average of Peak Maximum Wind', linestyle='-')
+    coefficients = np.polyfit(years, avg_winds, 1)
+    trendline = np.poly1d(coefficients)
+    plt.plot(years, trendline(years), color='blue', linestyle='--', label=f'Trendline (slope={coefficients[0]:.4f})')
+    
+    plt.title(f'Average of Peak Estimated Maximum Surface Wind per Year for {dataset_name.upper()} Typhoons')
+    plt.xlabel('Year')
+    plt.ylabel('Average of Peak Estimated Maximum Surface Wind of Typhoons (knots)')
+    plt.grid(True, alpha=0.3)
+    plt.legend()
+    plt.savefig(f'{dataset_name}_average_of_peak_maximum_wind_of_typhoons_per_year.png')
+    plt.close()
+
 def main():
     datasets = {
         'hko': 'HKO_BST.csv'
@@ -103,6 +169,9 @@ def main():
             plot_typhoon_tracks_on_map(data, min_wind=100, dataset_name=dataset_name)
             plot_wind_speed_distribution(data, dataset_name=dataset_name)
             plot_typhoon_frequency(data, dataset_name=dataset_name)
+            plot_strong_typhoon_frequency(data, min_wind=100, dataset_name=dataset_name)
+            plot_typhoon_frequency_monthly(data, dataset_name=dataset_name)
+            plot_average_of_peak_maximum_wind_of_typhoons_per_year(data, dataset_name=dataset_name)
             
             # Summary statistics
             typhoons = data[data['Intensity'].isin(['T', 'ST', 'SuperT'])]
@@ -113,6 +182,9 @@ def main():
             print(f"{dataset_name.upper()} Dataset: Map plot saved as '{dataset_name}_typhoon_tracks_map.png'")
             print(f"{dataset_name.upper()} Dataset: Wind speed distribution saved as '{dataset_name}_wind_speed_distribution.png'")
             print(f"{dataset_name.upper()} Dataset: Typhoon frequency plot saved as '{dataset_name}_typhoon_frequency.png'")
+            print(f"{dataset_name.upper()} Dataset: Strong typhoon frequency plot saved as '{dataset_name}_strong_typhoon_frequency.png'")
+            print(f"{dataset_name.upper()} Dataset: Typhoon frequency by month plot saved as '{dataset_name}_typhoon_frequency_monthly.png'")
+            print(f"{dataset_name.upper()} Dataset: Average peak wind per typhoon per year plot saved as '{dataset_name}_average_of_peak_maximum_wind_of_typhoons_per_year.png'")
         
         except FileNotFoundError:
             print(f"Error: {file_path} not found. Skipping {dataset_name.upper()} dataset.")
