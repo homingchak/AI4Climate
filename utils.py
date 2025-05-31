@@ -30,7 +30,7 @@ def calculate_distance(lat1, lon1, lat2, lon2):
         return geopy.distance.distance(coords_1, coords_2).km
     except:
         return np.nan
-
+    
 def calculate_wind_speed_change(df):
     df = df.sort_values(['ID', 'Datetime'])
     
@@ -69,4 +69,44 @@ def load_and_clean_data(file_path, filter_hurricanes=False):
     if filter_hurricanes:
         df = df[df['Status'] == 'HU']
     
+    return df
+
+def calculate_wind_speed_change_hko(df):
+    df = df.sort_values(['Typhoon_ID', 'Datetime'])
+    
+    # Calculate time difference (in hours) between consecutive records for each typhoon
+    df['Time_Diff_Hours'] = df.groupby('Typhoon_ID')['Datetime'].diff().dt.total_seconds() / 3600
+    
+    # Calculate wind speed change over 24 hours
+    df['Wind_Speed_Diff'] = df.groupby('Typhoon_ID')['Estimated maximum surface winds (knot)'].diff()
+    df['Wind_Speed_Change_Rate'] = df['Wind_Speed_Diff'] / df['Time_Diff_Hours']
+    df['Wind_Speed_Change_24h'] = df['Wind_Speed_Change_Rate'] * 24
+    
+    # Label as Rapid Intensification (RI) if wind speed increases by >= 30 knots in 24 hours
+    df['Rapid_Intensification'] = (df['Wind_Speed_Change_24h'] >= 30).astype(int)
+    
+    return df
+
+def load_and_clean_data_hko(file_path, filter_typhoons=False):
+    df = pd.read_csv(file_path)
+
+    df['Month'] = df['Month'].astype(str).str.zfill(2)
+    df['Day'] = df['Day'].astype(str).str.zfill(2)
+    df['Time (UTC)'] = df['Time (UTC)'].astype(str).str.zfill(2)
+    
+    df['Datetime'] = pd.to_datetime(df['Year'].astype(str) + '-' + 
+                                   df['Month'] + '-' + 
+                                   df['Day'] + ' ' + 
+                                   df['Time (UTC)'] + ':00', 
+                                   format='%Y-%m-%d %H:%M')
+    
+    df['Latitude'] = df['Latitude (0.01 degree N)'] / 100
+    df['Longitude'] = df['Longitude (0.01 degree E)'] / 100
+    
+    df['Typhoon_ID'] = df['Tropical Cyclone Name'].astype(str) + '_' + df['Year'].astype(str) + '_' + df['HKO Code'].astype(str)
+    
+    if filter_typhoons:
+        typhoon_statuses = ['T', 'ST', 'SuperT']
+        df = df[df['Intensity'].isin(typhoon_statuses)]
+
     return df
