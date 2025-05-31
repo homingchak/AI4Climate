@@ -14,10 +14,10 @@ This project leverages machine learning techniques, specifically Random Forest c
 
 ## Repository Structure
 
-| File/Directory          | Description                                      |
+| File | Description |
 |--------------------------|--------------------------------------------------|
-| `utils.py`              | Utility functions for data loading and processing. |
-| `merge_hko.py`              | Merges HKO best track data of each year into one single file. |
+| `utils.py` | Utility functions for data loading and processing. |
+| `merge_hko.py` | Merges HKO best track data of each year into one single file. |
 | `hurricane_analysis.py` | Analyzes Atlantic and Pacific datasets, generating summaries, maps of hurricanes, wind speed histograms, and hurricane frequency graphs. |
 | `typhoon_analysis_hko.py` | Analyzes HKO dataset, generating summary, map of typhoons, wind speed histogram, and typhoon frequency graph. |
 | `RI_prediction_random_forest_v1.py` | Trains a Random Forest model (V1) with 4 features, evaluates it, and plots feature importance. |
