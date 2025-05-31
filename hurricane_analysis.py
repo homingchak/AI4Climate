@@ -196,7 +196,7 @@ def main():
             print(f"{dataset_name.capitalize()} Dataset: Hurricane frequency plot saved as '{dataset_name}_hurricane_frequency.png'")
             print(f"{dataset_name.capitalize()} Dataset: Strong hurricane frequency plot saved as '{dataset_name}_strong_hurricane_frequency.png'")
             print(f"{dataset_name.capitalize()} Dataset: Hurricane frequency by month plot saved as '{dataset_name}_hurricane_frequency_monthly.png'")
-            print(f"{dataset_name.capitalize()} Dataset: Average peak wind per hurricane per year plot saved as '{dataset_name}_average_wind_per_storm_per_year.png'")
+            print(f"{dataset_name.capitalize()} Dataset: Average peak wind per hurricane per year plot saved as '{dataset_name}_average_of_peak_maximum_wind_of_hurricanes_per_year.png'")
         
         except FileNotFoundError:
             print(f"Error: {file_path} not found. Skipping {dataset_name.capitalize()} dataset.")
