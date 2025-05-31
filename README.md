@@ -18,8 +18,8 @@ This project leverages machine learning techniques, specifically Random Forest c
 |--------------------------|--------------------------------------------------|
 | `utils.py` | Utility functions for data loading and processing. |
 | `merge_hko.py` | Merges HKO best track data of each year into one single file. |
-| `hurricane_analysis.py` | Analyzes Atlantic and Pacific datasets, generating summaries, maps of hurricanes, wind speed histograms, and hurricane frequency graphs. |
-| `typhoon_analysis_hko.py` | Analyzes HKO dataset, generating summary, map of typhoons, wind speed histogram, and typhoon frequency graph. |
+| `hurricane_analysis.py` | Analyzes Atlantic and Pacific datasets, generating summaries, maps of hurricanes, wind speed histograms, hurricane frequency graphs, and average peak wind per hurricane per year plots. |
+| `typhoon_analysis_hko.py` | Analyzes HKO dataset, generating summary, map of typhoons, wind speed histogram, typhoon frequency graph, and average peak wind per typhoon per year plot. |
 | `RI_prediction_random_forest_v1.py` | Trains a Random Forest model (V1) with 4 features, evaluates it, and plots feature importance. |
 | `RI_prediction_random_forest_v2.py` | Trains a Random Forest model (V2) with 8 features, evaluates it, and plots feature importance. |
 | `RI_prediction_random_forest_v3.py` | Trains a Random Forest model (V3) with all features, evaluates it, and plots feature importance. |
@@ -37,12 +37,12 @@ This project leverages machine learning techniques, specifically Random Forest c
 
 3. **Running Scripts**:
    - **For NOAA Datasets (`atlantic.csv` or `pacific.csv`)**:
-     - Run `hurricane_analysis.py` to generate summaries, maps of hurricanes, wind speed histograms, and hurricane frequency graphs for both datasets..
+     - Run `hurricane_analysis.py` to generate summaries, maps of hurricanes, wind speed histograms, hurricane frequency graphs, and average peak wind per hurricane per year plot for both datasets.
      - Open `RI_prediction_random_forest_v1.py`, `RI_prediction_random_forest_v2.py`, `RI_prediction_random_forest_v3.py`, or `RI_prediction_xgboost.py`.
      - In the `main()` function, uncomment the desired dataset line (e.g., `df = load_and_clean_data('atlantic.csv')`) and the corresponding `param_grid` section optimized for that dataset.
      - Run the script to train the model, generate a summary, classification report, and feature importance plot.
    - **For HKO Dataset (`HKO_BST.csv`)**:
-     - Run `typhoon_analysis_hko.py` to generate summary, map of typhoons, wind speed histogram, and typhoon frequency graph for the HKO dataset.
+     - Run `typhoon_analysis_hko.py` to generate summary, map of typhoons, wind speed histogram, typhoon frequency graph, and average peak wind per typhoon per year plot for the HKO dataset.
      - Run `RI_prediction_random_forest_hko.py` or `RI_prediction_xgboost_hko.py` directly to train the model, generate a summary, classification report, and feature importance plot.
 
 ## Output
