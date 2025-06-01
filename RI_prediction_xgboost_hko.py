@@ -11,7 +11,7 @@ def main():
     df = load_and_clean_data_hko('HKO_BST.csv')
     
     print(f"Total Records: {len(df)}")
-    print(f"Total Unique Typhoons: {len(df['Typhoon_ID'].unique())}")
+    print(f"Total Unique Storms: {len(df['Typhoon_ID'].unique())}")
     
     typhoons = df[df['Intensity'].isin(['T', 'ST', 'SuperT'])]
     print(f"Total Typhoons: {len(typhoons['Typhoon_ID'].unique())}")
